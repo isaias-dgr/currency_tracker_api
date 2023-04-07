@@ -10,30 +10,30 @@ COMMIT_HASH = $(shell git rev-parse --verify HEAD)
 .PHONY: start
 start:
 	source envs_template
-	docker-compose -p ${project} up -d
+	docker compose -p ${project} up -d
 
 .PHONY: stop
 stop:
-	docker-compose -p ${project} down
+	docker compose -p ${project} down
 
 .PHONY: restart
 restart: stop start
 
 .PHONY: logs
 logs:
-	docker-compose -p ${project} logs -f ${service}
+	docker compose -p ${project} logs -f ${service}
 
 .PHONY: logs-db
 logs-db:
-	docker-compose -p ${project} logs -f ${service}-db
+	docker compose -p ${project} logs -f ${service}-db
 
 .PHONY: ps
 ps:
-	docker-compose -p ${project} ps
+	docker compose -p ${project} ps
 
 .PHONY: build
 build:
-	docker-compose -p ${project} build --no-cache
+	docker compose -p ${project} build --no-cache
 
 .PHONY: clean
 clean: stop build start
@@ -43,61 +43,61 @@ add: install-package-in-container build
 
 .PHONY: install-package-in-container
 install-package-in-container:
-	docker-compose -p ${project} exec ${service} go get -u ${package}
+	docker compose -p ${project} exec ${service} go get -u ${package}
 
 .PHONY: add-dev
 add-dev: install-dev-package-in-container build
 
 .PHONY: install-dev-package-in-container
 install-dev-package-in-container: start
-	docker-compose -p ${project} exec ${service} go get ${package}
+	docker compose -p ${project} exec ${service} go get ${package}
 
 .PHONY: migration-create
 migration-create: start
-	docker-compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" create $(name) sql
+	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" create $(name) sql
 	sudo chown -R $$USER ./migrate
 
 .PHONY: migrate
 migrate: start
-	docker-compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" up
+	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" up
 
 .PHONY: rollback
 rollback: start
-	docker-compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" down
+	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" down
 
 .PHONY: reset-db
 reset-db: start
-	docker-compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" reset
+	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" reset
 
 .PHONY: shell
 shell:
-	docker-compose -p ${project} exec ${service} sh
+	docker compose -p ${project} exec ${service} sh
 
 .PHONY: mysql
 mysql:
-	docker-compose -p ${project} exec ${service}-db mysql -u root -p
+	docker compose -p ${project} exec ${service}-db mysql -u root -p
 
 .PHONY: test
 test: test-exec
 
 .PHONY: test-exec
 test-exec:
-	docker-compose -p ${project} exec -T ${service} go test ${project-path}/...
+	docker compose -p ${project} exec -T ${service} go test ${project-path}/...
 
 .PHONY: lint
 lint:
-	docker-compose -p ${project} exec -T ${service} gofmt -d -l -s -e .
-	docker-compose -p ${project} exec -T ${service} go vet ${project-path}/...
-	docker-compose -p ${project} exec -T ${service} staticcheck ./...
+	docker compose -p ${project} exec -T ${service} gofmt -d -l -s -e .
+	docker compose -p ${project} exec -T ${service} go vet ${project-path}/...
+	docker compose -p ${project} exec -T ${service} staticcheck ./...
 
 .PHONY: lint-fix
 lint-fix:
-	docker-compose -p ${project} exec ${service} go fmt ${project-path}/...
+	docker compose -p ${project} exec ${service} go fmt ${project-path}/...
 
 .PHONY: test-cov
 test-cov:
-	docker-compose -p ${project} exec -T ${service} go test -coverprofile=./tmp/profile.out ${project-path}/...
-	docker-compose -p ${project} exec -T ${service} go tool cover -func=./tmp/profile.out
+	docker compose -p ${project} exec -T ${service} go test -coverprofile=./tmp/profile.out ${project-path}/...
+	docker compose -p ${project} exec -T ${service} go tool cover -func=./tmp/profile.out
 
 .PHONY: commit-hash
 commit-hash:

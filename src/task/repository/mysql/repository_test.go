@@ -37,7 +37,7 @@ func (s *SuiteRepository) SetupTest() {
 
 func (s *SuiteRepository) TestFetch() {
 
-	s.Run("Success test", func(){
+	s.Run("Success test", func() {
 		mockTask := []*domain.Task{
 			domain.NewTask("title 01", "description 01"),
 			domain.NewTask("title 02", "description 02"),
@@ -72,7 +72,7 @@ func (s *SuiteRepository) TestFetch() {
 		}
 	})
 
-	s.Run("When exec query fails must return error", func(){
+	s.Run("When exec query fails must return error", func() {
 		q := "SELECT \\* FROM task ORDER BY created_at ASC LIMIT \\? OFFSET \\?"
 		s.mockSQL.ExpectQuery(q).WithArgs(3, 0).WillReturnError(errors.New("D error"))
 		filter := &domain.Filter{
@@ -82,13 +82,13 @@ func (s *SuiteRepository) TestFetch() {
 		}
 		tasks, err := s.repo.Fetch(context.TODO(), filter)
 		s.Error(err)
-		s.Equal("query_context",err.Error())
+		s.Equal("query_context", err.Error())
 		s.Nil(tasks)
 	})
 
-	s.Run("When db return incorrect type data", func(){
+	s.Run("When db return incorrect type data", func() {
 		rows := []string{"id", "title", "description", "updated_at", "created_at"}
-		data := sqlmock.NewRows(rows).AddRow("uuid",  "T", "D", "C", "U")
+		data := sqlmock.NewRows(rows).AddRow("uuid", "T", "D", "C", "U")
 		q := "SELECT \\* FROM task ORDER BY created_at ASC LIMIT \\? OFFSET \\?"
 		s.mockSQL.ExpectQuery(q).WithArgs(3, 0).WillReturnRows(data)
 
@@ -99,7 +99,7 @@ func (s *SuiteRepository) TestFetch() {
 		}
 		tasks, err := s.repo.Fetch(context.TODO(), filter)
 		s.Error(err)
-		s.Equal("row_data_types",err.Error())
+		s.Equal("row_data_types", err.Error())
 		s.Nil(tasks)
 	})
 
@@ -131,7 +131,7 @@ func (s *SuiteRepository) TestFetch() {
 		s.Equal("row_corrupt", err.Error())
 	})
 
-	s.Run("When Count exec query fails must return error", func(){
+	s.Run("When Count exec query fails must return error", func() {
 		mockTask := []*domain.Task{
 			domain.NewTask("title 01", "description 01"),
 			domain.NewTask("title 02", "description 02"),
@@ -159,44 +159,44 @@ func (s *SuiteRepository) TestFetch() {
 		}
 		tasks, err := s.repo.Fetch(context.TODO(), filter)
 		s.Error(err)
-		s.Equal("query_context",err.Error())
+		s.Equal("query_context", err.Error())
 		s.Nil(tasks)
 	})
 
-	s.Run("When Count exec query return incorrect type must return error", 
-	func(){
-		mockTask := []*domain.Task{
-			domain.NewTask("title 01", "description 01"),
-			domain.NewTask("title 02", "description 02"),
-		}
+	s.Run("When Count exec query return incorrect type must return error",
+		func() {
+			mockTask := []*domain.Task{
+				domain.NewTask("title 01", "description 01"),
+				domain.NewTask("title 02", "description 02"),
+			}
 
-		binary_uuid, _ := uuid.New().MarshalBinary()
-		rows := []string{"id", "title", "description", "updated_at", "created_at"}
-		data := sqlmock.NewRows(rows).
-			AddRow(binary_uuid, mockTask[0].Title, mockTask[0].Description,
-				mockTask[0].CreatedAt, mockTask[0].UpdatedAt).
-			AddRow(binary_uuid, mockTask[1].Title, mockTask[1].Description,
-				mockTask[1].CreatedAt, mockTask[1].UpdatedAt)
+			binary_uuid, _ := uuid.New().MarshalBinary()
+			rows := []string{"id", "title", "description", "updated_at", "created_at"}
+			data := sqlmock.NewRows(rows).
+				AddRow(binary_uuid, mockTask[0].Title, mockTask[0].Description,
+					mockTask[0].CreatedAt, mockTask[0].UpdatedAt).
+				AddRow(binary_uuid, mockTask[1].Title, mockTask[1].Description,
+					mockTask[1].CreatedAt, mockTask[1].UpdatedAt)
 
-		q := "SELECT \\* FROM task ORDER BY created_at ASC LIMIT \\? OFFSET \\?"
-		s.mockSQL.ExpectQuery(q).WithArgs(3, 0).WillReturnRows(data)
+			q := "SELECT \\* FROM task ORDER BY created_at ASC LIMIT \\? OFFSET \\?"
+			s.mockSQL.ExpectQuery(q).WithArgs(3, 0).WillReturnRows(data)
 
-		query_count := "SELECT count\\(\\*\\) FROM task"
-		count := sqlmock.NewRows([]string{"count"}).AddRow("a")
-		s.mockSQL.ExpectQuery(query_count).WillReturnRows(count)
+			query_count := "SELECT count\\(\\*\\) FROM task"
+			count := sqlmock.NewRows([]string{"count"}).AddRow("a")
+			s.mockSQL.ExpectQuery(query_count).WillReturnRows(count)
 
-		filter := &domain.Filter{
-			Offset: 0,
-			Limit:  3,
-			SortBy: "",
-		}
-		tasks, err := s.repo.Fetch(context.TODO(), filter)
-		s.Error(err)
-		s.Equal("row_data_types",err.Error())
-		s.Nil(tasks)
-	})
+			filter := &domain.Filter{
+				Offset: 0,
+				Limit:  3,
+				SortBy: "",
+			}
+			tasks, err := s.repo.Fetch(context.TODO(), filter)
+			s.Error(err)
+			s.Equal("row_data_types", err.Error())
+			s.Nil(tasks)
+		})
 
-	s.Run("When Count has rows with error must return error", func(){
+	s.Run("When Count has rows with error must return error", func() {
 		mockTask := []*domain.Task{
 			domain.NewTask("title 01", "description 01"),
 			domain.NewTask("title 02", "description 02"),
@@ -251,7 +251,7 @@ func (s *SuiteRepository) TestGetByID() {
 	})
 
 	s.Run("When test uuid without format return error", func() {
-		task, err := s.repo.GetByID(context.TODO(),"00000000-0000-0000-0000" )
+		task, err := s.repo.GetByID(context.TODO(), "00000000-0000-0000-0000")
 		s.Error(err)
 		s.Nil(task)
 	})
@@ -280,7 +280,7 @@ func (s *SuiteRepository) TestGetByID() {
 
 		task, err := s.repo.GetByID(context.TODO(), raw_uuid.String())
 		s.Error(err)
-		s.Equal("not_found",err.Error())
+		s.Equal("not_found", err.Error())
 		s.Nil(task)
 	})
 }
@@ -296,7 +296,7 @@ func (s *SuiteRepository) TestInsert() {
 				sqlmock.AnyArg(), sqlmock.AnyArg()).
 			WillReturnResult(sqlmock.NewResult(1, 1))
 
-		err := s.repo.Insert(context.TODO(),task)
+		err := s.repo.Insert(context.TODO(), task)
 		s.Nil(err)
 	})
 
@@ -307,7 +307,7 @@ func (s *SuiteRepository) TestInsert() {
 			ExpectPrepare(q).
 			WillReturnError(errors.New("prepare error"))
 
-		err := s.repo.Insert(context.TODO(),task)
+		err := s.repo.Insert(context.TODO(), task)
 		s.Error(err)
 		s.Equal("query_prepare_ctx", err.Error())
 	})
@@ -323,7 +323,7 @@ func (s *SuiteRepository) TestInsert() {
 				sqlmock.AnyArg(), sqlmock.AnyArg()).
 			WillReturnError(errors.New("exec error"))
 
-		err := s.repo.Insert(context.TODO(),task)
+		err := s.repo.Insert(context.TODO(), task)
 		s.Error(err)
 		s.Equal("query_exec", err.Error())
 	})
@@ -337,7 +337,7 @@ func (s *SuiteRepository) TestInsert() {
 			WithArgs(sqlmock.AnyArg(), task.Title, task.Description, sqlmock.AnyArg(), sqlmock.AnyArg()).
 			WillReturnResult(sqlmock.NewErrorResult(errors.New("not_found")))
 
-		err := s.repo.Insert(context.TODO(),task)
+		err := s.repo.Insert(context.TODO(), task)
 		s.NotNil(err)
 		s.Equal("query_exec", err.Error())
 	})
@@ -350,7 +350,7 @@ func (s *SuiteRepository) TestInsert() {
 			ExpectExec().
 			WithArgs(sqlmock.AnyArg(), task.Title, task.Description, sqlmock.AnyArg(), sqlmock.AnyArg()).
 			WillReturnResult(sqlmock.NewResult(1, 2))
-		err := s.repo.Insert(context.TODO(),task)
+		err := s.repo.Insert(context.TODO(), task)
 		s.NotNil(err)
 		s.Equal("conflict_insert", err.Error())
 	})
@@ -375,7 +375,7 @@ func (s *SuiteRepository) TestUpdate() {
 
 	s.Run("When test uuid without format return error", func() {
 		mocktask := domain.NewTask("title test 01", "description test 01")
-		err := s.repo.Update(context.TODO(),"00000000", mocktask)
+		err := s.repo.Update(context.TODO(), "00000000", mocktask)
 		s.Error(err)
 		s.Equal("uuid_format", err.Error())
 	})
@@ -452,7 +452,7 @@ func (s *SuiteRepository) TestDelete() {
 	})
 
 	s.Run("When test uuid without format return error", func() {
-		err := s.repo.Delete(context.TODO(),"00000000")
+		err := s.repo.Delete(context.TODO(), "00000000")
 		s.Error(err)
 		s.Equal("uuid_format", err.Error())
 	})

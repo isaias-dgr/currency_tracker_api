@@ -1,5 +1,5 @@
 # Developer
-FROM golang:1.17-alpine as dev
+FROM golang:1.19-alpine as dev
 RUN apk update && apk upgrade && \
     apk --update add gcc git make curl build-base && \
     curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s && \
@@ -15,7 +15,7 @@ WORKDIR /usr/github.com/isaias-dgr/todo
 COPY . /usr/github.com/isaias-dgr/todo
 
 # Builder
-FROM golang:1.15-alpine as builder
+FROM golang:1.19-alpine as builder
 RUN apk update && apk upgrade && \
     apk --update add gcc git make curl
 

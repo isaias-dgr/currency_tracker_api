@@ -29,14 +29,15 @@ func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.TaskRepository)
 		os.Getenv("MYSQL_PORT"),
 		os.Getenv("MYSQL_DATABASE"),
 	)
-	logger.Debug(connection)
+	
+	logger.Info(connection)
 	dbConn, err := sql.Open(`mysql`, connection)
 	if err != nil {
-		logger.Info(err)
+		logger.Error(err)
 	}
 	err = dbConn.Ping()
 	if err != nil {
-		logger.Info(err)
+		logger.Error(err)
 	}
 	return dbConn, _TaskRepo.NewtaskRepository(dbConn, logger)
 }

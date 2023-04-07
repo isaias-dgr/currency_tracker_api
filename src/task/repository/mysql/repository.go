@@ -90,10 +90,9 @@ func (m *taskRepository) count(ctx context.Context) (total int, err error) {
 	return total, nil
 }
 
-
 func (m *taskRepository) GetByID(ctx context.Context, id string) (t *domain.Task, err error) {
 	_, binary_uuid, err := m.parse(id)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -118,7 +117,7 @@ func (m *taskRepository) Insert(ctx context.Context, ta *domain.Task) (err error
 	}
 	ta.CreatedAt = &created_at
 	ta.UpdatedAt = ta.CreatedAt
-	
+
 	query := `INSERT task SET 
 		id=?,
 		title=?, 
@@ -152,7 +151,7 @@ func (m *taskRepository) Insert(ctx context.Context, ta *domain.Task) (err error
 
 func (m *taskRepository) Update(ctx context.Context, id string, ta *domain.Task) (err error) {
 	raw_uuid, binary_uuid, err := m.parse(id)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	updated_at := time.Now()
@@ -186,10 +185,10 @@ func (m *taskRepository) Update(ctx context.Context, id string, ta *domain.Task)
 func (m *taskRepository) Delete(ctx context.Context, id string) (err error) {
 	query := "DELETE FROM task WHERE id=?"
 	_, binary_uuid, err := m.parse(id)
-	if err != nil{
+	if err != nil {
 		return err
 	}
-	
+
 	stmt, err := m.Conn.PrepareContext(ctx, query)
 	if err != nil {
 		m.l.Error(err.Error())
@@ -219,7 +218,7 @@ func (m *taskRepository) parse(id string) (*uuid.UUID, []byte, error) {
 	raw_uuid, err := uuid.Parse(id)
 	if err != nil {
 		m.l.Error(err.Error())
-		return nil,nil, errors.New("uuid_format")
+		return nil, nil, errors.New("uuid_format")
 	}
 
 	binary_uuid, err := raw_uuid.MarshalBinary()
