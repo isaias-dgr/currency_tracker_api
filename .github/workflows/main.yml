@@ -1,4 +1,4 @@
-name: 👷 CI/CD todo
+name: 👷 CI/CD currency
 
 on:
   pull_request:

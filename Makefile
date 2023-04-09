@@ -1,9 +1,9 @@
 default: start
 
 SHELL := /bin/bash
-project:=mstodo
-project-path:=github.com/isaias-dgr/todo
-service:=ms-todo
+project:=currency-tracker
+project-path:=github.com/isaias-dgr/currency-tracker
+service:=currency-tracker
 ENV?=dev
 COMMIT_HASH = $(shell git rev-parse --verify HEAD)
 
@@ -54,28 +54,28 @@ install-dev-package-in-container: start
 
 .PHONY: migration-create
 migration-create: start
-	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" create $(name) sql
+	docker compose -p ${project} exec ${service} goose -dir ./migrate postgres "${POSTGRES_CONN}" create $(name) sql
 	sudo chown -R $$USER ./migrate
 
 .PHONY: migrate
 migrate: start
-	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" up
+	docker compose -p ${project} exec ${service} goose -dir ./migrate postgres "${POSTGRES_CONN}" up
 
 .PHONY: rollback
 rollback: start
-	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" down
+	docker compose -p ${project} exec ${service} goose -dir ./migrate postgres "${POSTGRES_CONN}" down
 
 .PHONY: reset-db
 reset-db: start
-	docker compose -p ${project} exec ${service} goose -dir ./migrate mysql "${MYSQL_CONN}" reset
+	docker compose -p ${project} exec ${service} goose -dir ./migrate postgres "${POSTGRES_CONN}" reset
 
 .PHONY: shell
 shell:
 	docker compose -p ${project} exec ${service} sh
 
-.PHONY: mysql
-mysql:
-	docker compose -p ${project} exec ${service}-db mysql -u root -p
+.PHONY: POSTGRES
+POSTGRES:
+	docker compose -p ${project} exec ${service}-db POSTGRES -u root -p
 
 .PHONY: test
 test: test-exec

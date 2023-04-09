@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/isaias-dgr/todo/src/domain"
-	"github.com/isaias-dgr/todo/src/task/deliver/http"
-	_TaskRepo "github.com/isaias-dgr/todo/src/task/repository/mysql"
-	useCase "github.com/isaias-dgr/todo/src/task/usecase"
+	"github.com/isaias-dgr/currency-tracker/src/currency/deliver/http"
+	_CurrencyRepo "github.com/isaias-dgr/currency-tracker/src/currency/repository/postgres"
+	useCase "github.com/isaias-dgr/currency-tracker/src/currency/usecase"
+	"github.com/isaias-dgr/currency-tracker/src/domain"
+	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
@@ -19,19 +19,19 @@ func SetUpLog() *zap.SugaredLogger {
 	return logger.Sugar()
 }
 
-func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.TaskRepository) {
+func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.CurrencyRepository) {
 	logger.Info("💾 Set up Database.")
+	logger.Info(os.Getenv("MYSQL_USER"))
 	connection := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		os.Getenv("MYSQL_USER"),
-		os.Getenv("MYSQL_PASSWORD"),
-		os.Getenv("MYSQL_HOST"),
-		os.Getenv("MYSQL_PORT"),
-		os.Getenv("MYSQL_DATABASE"),
+		"postgresql://%s:%s@%s:%s?sslmode=disable",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
 	)
-	
+
 	logger.Info(connection)
-	dbConn, err := sql.Open(`mysql`, connection)
+	dbConn, err := sql.Open(`postgres`, connection)
 	if err != nil {
 		logger.Error(err)
 	}
@@ -39,7 +39,7 @@ func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.TaskRepository)
 	if err != nil {
 		logger.Error(err)
 	}
-	return dbConn, _TaskRepo.NewtaskRepository(dbConn, logger)
+	return dbConn, _CurrencyRepo.NewcurrencyRepository(dbConn, logger)
 }
 
 func main() {
@@ -51,13 +51,13 @@ func main() {
 		"8080")
 	log.Info(msg)
 	log.Info("🚀 API V1.")
-	dbConn, task_repo := SetUpRepository(log)
+	dbConn, currency_repo := SetUpRepository(log)
 	defer func() {
 		err := dbConn.Close()
 		if err != nil {
 			log.Error(err)
 		}
 	}()
-	useCase := useCase.NewTaskUseCase(task_repo)
-	http.NewTaskHandler(useCase, log)
+	useCase := useCase.NewCurrencyUseCase(currency_repo)
+	http.NewCurrencyHandler(useCase, log)
 }

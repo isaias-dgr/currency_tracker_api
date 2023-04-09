@@ -46,7 +46,7 @@ type Filter struct {
 func NewFilter(qs url.Values) *Filter {
 	return &Filter{
 		Offset: GetIntDefault(qs, "offset", 0),
-		Limit:  GetIntDefault(qs, "limit", 10),
+		Limit:  GetIntDefault(qs, "limit", 50),
 		SortBy: GetDefault(qs, "sort_by", ""),
 	}
 }

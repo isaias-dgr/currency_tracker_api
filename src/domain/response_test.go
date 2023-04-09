@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/isaias-dgr/todo/src/domain"
+	"github.com/isaias-dgr/currency-tracker/src/domain"
 	"github.com/stretchr/testify/assert"
 )
 

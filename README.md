@@ -1,2 +1,2 @@
-# todo
-TODO Project (template microservice golang)
+# Currency Tracker
+currency-tracker Project
