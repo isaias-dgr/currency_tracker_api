@@ -1,11 +1,15 @@
-export PROJ_NAME="currency-tracker"
-export PROJ_ENV="dev"
+export v
 export POSTGRES_DATABASE="${PROJ_ENV}_${PROJ_NAME}"
 export POSTGRES_HOST="${PROJ_NAME}-db"
 export POSTGRES_PORT="5432"
 export POSTGRES_USER="user_${PROJ_ENV}_${PROJ_NAME}"
 # this is for develop
 export POSTGRES_PASSWORD="ab22cd66-56d9-4b65-80d2-f675c0afba49"
-export POSTGRES_CONN="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}"
+export POSTGRES_CONN="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}"
 
+export CURRENCY_URL="https://api.currencyapi.com/v3/latest"
+export CURRENCY_APIKEY="ILxoSDbphHIZoqHm1eVjdMgRqYdoVZunhIhVlpSQ"
+
+export SLEEP_TIME=5
+export TIMEOUT=1
 echo "😎 Export envs"

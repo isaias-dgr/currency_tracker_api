@@ -1,0 +1,15 @@
+CurrencyPathWithID:
+  get:
+    tags:
+      - Currency
+    summary: Get Currency by ID
+    parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          example: "MXN"
+    responses:
+      '200':
+        $ref : "../responses/success_response.yaml"

@@ -16,10 +16,33 @@ services:
       - 'POSTGRES_USER=${POSTGRES_USER}'
       - 'PROJ_NAME=${PROJ_NAME}'
       - 'PROJ_ENV=${PROJ_ENV}'
-
+      - 'CURRENCY_APIKEY=${CURRENCY_APIKEY}'
+      - 'CURRENCY_URL=${CURRENCY_URL}'
     ports:
       - '8080:8080'
       - '2345:2345'
+    volumes:
+      - .:/usr/github.com/isaias-dgr/currency-tracker:rw
+
+  currency-ingest:
+    build: 
+      context: .
+      target: dev-ingest
+    entrypoint: ["air", "-d", "-c", ".air.ingest.toml"]
+    links:
+      - currency-tracker-db
+    environment:
+      - 'POSTGRES_HOST=currency-tracker-db'
+      - 'POSTGRES_PORT=5432'
+      - 'POSTGRES_DATABASE=${POSTGRES_DATABASE}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
+      - 'POSTGRES_USER=${POSTGRES_USER}'
+      - 'PROJ_NAME=${PROJ_NAME}'
+      - 'PROJ_ENV=${PROJ_ENV}'
+      - 'CURRENCY_APIKEY=${CURRENCY_APIKEY}'
+      - 'CURRENCY_URL=${CURRENCY_URL}'
+      - 'SLEEP_TIME=${SLEEP_TIME}'
+      - 'TIMEOUT=${TIMEOUT}'
     volumes:
       - .:/usr/github.com/isaias-dgr/currency-tracker:rw
 
@@ -32,3 +55,15 @@ services:
       - 'POSTGRES_USER=${POSTGRES_USER}'
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
     restart: unless-stopped
+    volumes:
+      - ./datadb:/var/lib/postgresql/data
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger_ui_container
+    ports:
+      - "80:8080"
+    volumes:
+      - ./doc:/usr/share/nginx/html/doc
+    environment:
+      API_URL: doc/openapi.yamltime.Minute * time.Duration(sleeptime)

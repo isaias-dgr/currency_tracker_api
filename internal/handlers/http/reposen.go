@@ -1,9 +1,12 @@
-package domain
+package http
 
 import (
 	"log"
 	"net/url"
 	"strconv"
+	"time"
+
+	"github.com/isaias-dgr/currency-tracker/internal/core/domain"
 )
 
 type Response struct {
@@ -11,7 +14,7 @@ type Response struct {
 	Metadata interface{} `json:"metadata,omitempty"`
 }
 
-func NewResponse(data interface{}, total int, filter *Filter, msg string) Response {
+func NewResponse(data interface{}, total int, filter *domain.Filter, msg string) Response {
 	resp := Response{
 		Data: data,
 	}
@@ -28,7 +31,7 @@ type Metadata struct {
 	Message string `json:"message,omitempty"`
 }
 
-func NewMetadata(total int, filter *Filter, msg string) *Metadata {
+func NewMetadata(total int, filter *domain.Filter, msg string) *Metadata {
 	return &Metadata{
 		Offset:  filter.Offset,
 		Limit:   filter.Limit,
@@ -37,17 +40,13 @@ func NewMetadata(total int, filter *Filter, msg string) *Metadata {
 	}
 }
 
-type Filter struct {
-	Offset int
-	Limit  int
-	SortBy string
-}
-
-func NewFilter(qs url.Values) *Filter {
-	return &Filter{
+func NewFilter(qs url.Values) *domain.Filter {
+	return &domain.Filter{
 		Offset: GetIntDefault(qs, "offset", 0),
-		Limit:  GetIntDefault(qs, "limit", 50),
-		SortBy: GetDefault(qs, "sort_by", ""),
+		Limit:  GetIntDefault(qs, "limit", 100),
+		SortBy: GetDefault(qs, "sort_by", "created_at"),
+		Finit:  GetDateDefault(qs, "finit", ""),
+		Fend:   GetDateDefault(qs, "fend", ""),
 	}
 }
 
@@ -57,6 +56,15 @@ func GetIntDefault(qs url.Values, k string, v int) int {
 		log.Printf("> error %s", err)
 	}
 	return val
+}
+
+func GetDateDefault(qs url.Values, k string, v string) *time.Time {
+	val, err := time.Parse("2006-01-02 15:04:05", GetDefault(qs, k, v))
+	if err != nil {
+		log.Printf("> %s %s error %s", k, v, err)
+		return nil
+	}
+	return &val
 }
 
 func GetDefault(qs url.Values, k string, v string) string {

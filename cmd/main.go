@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/isaias-dgr/currency-tracker/src/currency/deliver/http"
-	_CurrencyRepo "github.com/isaias-dgr/currency-tracker/src/currency/repository/postgres"
-	useCase "github.com/isaias-dgr/currency-tracker/src/currency/usecase"
-	"github.com/isaias-dgr/currency-tracker/src/domain"
+	useCase "github.com/isaias-dgr/currency-tracker/internal/core/use_case"
+	"github.com/isaias-dgr/currency-tracker/internal/handlers/http"
+	"github.com/isaias-dgr/currency-tracker/internal/repositories"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -19,15 +18,16 @@ func SetUpLog() *zap.SugaredLogger {
 	return logger.Sugar()
 }
 
-func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.CurrencyRepository) {
+func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, *repositories.Currencies_psq) {
 	logger.Info("💾 Set up Database.")
-	logger.Info(os.Getenv("MYSQL_USER"))
+	logger.Info(os.Getenv("POSTGRES_USER"))
 	connection := fmt.Sprintf(
-		"postgresql://%s:%s@%s:%s?sslmode=disable",
+		"postgresql://%s:%s@%s:%s/%s?sslmode=disable",
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DATABASE"),
 	)
 
 	logger.Info(connection)
@@ -39,13 +39,13 @@ func SetUpRepository(logger *zap.SugaredLogger) (*sql.DB, domain.CurrencyReposit
 	if err != nil {
 		logger.Error(err)
 	}
-	return dbConn, _CurrencyRepo.NewcurrencyRepository(dbConn, logger)
+	return dbConn, repositories.NewCurrencyRepo(dbConn, logger)
 }
 
 func main() {
 	log := SetUpLog()
 	msg := fmt.Sprintf(
-		"🤓 SetUp %s_%s:%s..",
+		"🤓 SetUp cmd %s_%s:%s..",
 		os.Getenv("PROJ_NAME"),
 		os.Getenv("PROJ_ENV"),
 		"8080")
@@ -58,6 +58,7 @@ func main() {
 			log.Error(err)
 		}
 	}()
-	useCase := useCase.NewCurrencyUseCase(currency_repo)
-	http.NewCurrencyHandler(useCase, log)
+
+	u := useCase.NewCurrency(currency_repo, log)
+	http.NewCurrencyHandler(*u, log)
 }

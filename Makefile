@@ -4,12 +4,14 @@ SHELL := /bin/bash
 project:=currency-tracker
 project-path:=github.com/isaias-dgr/currency-tracker
 service:=currency-tracker
+service-ingest:=currency-ingest
 ENV?=dev
 COMMIT_HASH = $(shell git rev-parse --verify HEAD)
+ENV_VARS = $(source envs_template)
 
 .PHONY: start
 start:
-	source envs_template
+	@echo $(ENV_VARS)
 	docker compose -p ${project} up -d
 
 .PHONY: stop
@@ -22,6 +24,10 @@ restart: stop start
 .PHONY: logs
 logs:
 	docker compose -p ${project} logs -f ${service}
+
+.PHONY: logs-ingest
+logs-ingest:
+	docker compose -p ${project} logs -f ${service-ingest}
 
 .PHONY: logs-db
 logs-db:
@@ -73,9 +79,9 @@ reset-db: start
 shell:
 	docker compose -p ${project} exec ${service} sh
 
-.PHONY: POSTGRES
-POSTGRES:
-	docker compose -p ${project} exec ${service}-db POSTGRES -u root -p
+.PHONY: postgres
+postgres:
+	docker compose -p ${project} exec ${service}-db psql -U ${POSTGRES_USER} -W  -d ${POSTGRES_DATABASE}
 
 .PHONY: test
 test: test-exec
