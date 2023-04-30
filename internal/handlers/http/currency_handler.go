@@ -30,7 +30,7 @@ func NewCurrencyHandler(currencyUseCase useCase.Currency, logger *zap.SugaredLog
 
 	app, _ := newrelic.NewApplication(
 		newrelic.ConfigAppName("currency-tracker"),
-		newrelic.ConfigLicense("918bbc0a76f525bfbdbbba48f6c7b2831019NRAL"),
+		newrelic.ConfigLicense(""),
 		newrelic.ConfigAppLogForwardingEnabled(true),
 		nrzap.ConfigLogger(handler.log.Desugar().Named("newrelic")),
 	)
